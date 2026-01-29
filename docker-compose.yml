@@ -1,0 +1,33 @@
+# 🐳 Docker Setup pour Tester les Vulnérabilités
+
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=False  # Debug désactivé même en dev
+    volumes:
+      - .:/app
+    command: python main.py
+    networks:
+      - security-network
+
+  # Base de données SQLite (optionnel)
+  db:
+    image: sqlite
+    volumes:
+      - ./data:/data
+    networks:
+      - security-network
+
+networks:
+  security-network:
+    driver: bridge
+
+# Usage:
+# docker-compose up
+# L'application démarre sur http://localhost:5000

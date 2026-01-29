@@ -1,0 +1,66 @@
+# Fichier .gitignore pour le repository
+
+# Variables d'environnement (SECRETS!)
+.env
+.env.local
+.env.*.local
+
+# Dépendances Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Environnement virtuel
+venv/
+ENV/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Base de données
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporaires
+tmp/
+temp/
+*.tmp
+
+# Fichiers d'exploitation (pour éviter des accidents)
+exploit_payload.pkl
