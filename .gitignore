@@ -1,11 +1,11 @@
-# Fichier .gitignore pour le repository
+# .gitignore for the repository
 
-# Variables d'environnement (SECRETS!)
+# Environment variables (SECRETS!)
 .env
 .env.local
 .env.*.local
 
-# Dépendances Python
+# Python dependencies
 __pycache__/
 *.py[cod]
 *$py.class
@@ -30,7 +30,7 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# Environnement virtuel
+# Virtual environment
 venv/
 ENV/
 env/
@@ -43,7 +43,7 @@ env/
 *~
 .DS_Store
 
-# Base de données
+# Database
 *.db
 *.sqlite
 *.sqlite3
@@ -57,10 +57,10 @@ logs/
 .coverage
 htmlcov/
 
-# Temporaires
+# Temporary files
 tmp/
 temp/
 *.tmp
 
-# Fichiers d'exploitation (pour éviter des accidents)
+# Exploitation files (to avoid accidents)
 exploit_payload.pkl

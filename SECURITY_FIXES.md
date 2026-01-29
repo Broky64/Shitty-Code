@@ -1,8 +1,8 @@
-# 🔍 Détail des Vulnérabilités & Solutions
+# 🔍 Vulnerabilities Detail & Solutions
 
-## 1. Clés Secrètes Hardcodées
+## 1. Hardcoded Secret Keys
 
-### ❌ Code Vulnérable
+### ❌ Vulnerable Code
 ```python
 AWS_SECRET_KEY = "AKIAIMNO78987EXAMPLE"
 DATABASE_PASSWORD = "super_secret_password_123!"
@@ -13,35 +13,35 @@ DATABASE_PASSWORD = "super_secret_password_123!"
 import os
 from dotenv import load_dotenv
 
-load_dotenv()  # Charge depuis .env
+load_dotenv()  # Load from .env
 
 AWS_SECRET_KEY = os.getenv("AWS_SECRET_KEY")
 DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD")
 ```
 
-### Fichier `.env` (à ignorer avec .gitignore)
+### .env File (must be ignored with .gitignore)
 ```
-AWS_SECRET_KEY=votre_vrai_secret
-DATABASE_PASSWORD=votre_vraie_password
+AWS_SECRET_KEY=your_real_secret
+DATABASE_PASSWORD=your_real_password
 ```
 
-**Outils :** pre-commit hooks, Gitleaks, Truffleog
+**Tools :** pre-commit hooks, Gitleaks, Truffleog
 
 ---
 
-## 2. Injection de Commandes OS
+## 2. OS Command Injection
 
-### ❌ Code Vulnérable
+### ❌ Vulnerable Code
 ```python
 import os
 user_data = request.args.get("data")
-os.system("echo " + user_data)  # DANGER !
+os.system("echo " + user_data)  # DANGER!
 ```
 
-**Payloads d'exploitation :**
-- `; rm -rf /` → Supprime les fichiers
-- `| cat /etc/passwd` → Lit les fichiers système
-- `&& whoami` → Exécute des commandes
+**Exploitation Payloads :**
+- `; rm -rf /` → Deletes files
+- `| cat /etc/passwd` → Reads system files
+- `&& whoami` → Executes commands
 
 ### ✅ Solution
 ```python
@@ -49,25 +49,25 @@ import subprocess
 
 user_data = request.args.get("data", "")
 
-# Utiliser subprocess avec shell=False
+# Use subprocess with shell=False
 result = subprocess.run(
-    ["echo", user_data],  # Commande ET arguments séparés
-    shell=False,           # Pas d'interprétation shell
+    ["echo", user_data],  # Command AND arguments separated
+    shell=False,           # No shell interpretation
     capture_output=True,
     text=True
 )
 return result.stdout
 ```
 
-**Pourquoi c'est mieux :**
-- Pas d'interprétation des caractères spéciaux
-- Les arguments sont traités comme des données, pas du code
+**Why it's better:**
+- Special characters are not interpreted
+- Arguments are treated as data, not code
 
 ---
 
 ## 3. SQL Injection
 
-### ❌ Code Vulnérable
+### ❌ Vulnerable Code
 ```python
 import sqlite3
 user_id = request.args.get("id")
@@ -75,14 +75,14 @@ user_id = request.args.get("id")
 conn = sqlite3.connect('database.db')
 cursor = conn.cursor()
 
-# DANGER : f-strings + requête SQL = injection !
+# DANGER: f-strings + SQL query = injection!
 cursor.execute(f"SELECT * FROM users WHERE id = '{user_id}'")
 ```
 
-**Payloads d'exploitation :**
-- `' OR '1'='1` → Authentification bypass
-- `' UNION SELECT password FROM admin--` → Exfiltration de données
-- `'; DROP TABLE users;--` → Suppression de données
+**Exploitation Payloads :**
+- `' OR '1'='1` → Authentication bypass
+- `' UNION SELECT password FROM admin--` → Data exfiltration
+- `'; DROP TABLE users;--` → Data deletion
 
 ### ✅ Solution
 ```python
@@ -93,14 +93,14 @@ user_id = request.args.get("id")
 conn = sqlite3.connect('database.db')
 cursor = conn.cursor()
 
-# Utiliser des placeholders (?) - requête paramétrée
+# Use placeholders (?) - parameterized query
 cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
 
-# Récupérer les résultats
+# Fetch results
 result = cursor.fetchone()
 ```
 
-**Paramétrage dans différentes DB :**
+**Parameterization in different databases :**
 ```python
 # SQLite
 cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
@@ -108,37 +108,37 @@ cursor.execute("SELECT * FROM users WHERE id = ?", (user_id,))
 # MySQL / Psycopg
 cursor.execute("SELECT * FROM users WHERE id = %s", (user_id,))
 
-# SQLAlchemy (Recommandé)
+# SQLAlchemy (Recommended)
 from sqlalchemy import text
 session.execute(text("SELECT * FROM users WHERE id = :id"), {"id": user_id})
 ```
 
 ---
 
-## 4. Désérialisation Insecure (Pickle)
+## 4. Insecure Deserialization (Pickle)
 
-### ❌ Code Vulnérable
+### ❌ Vulnerable Code
 ```python
 import pickle
 import base64
 
 user_data = request.args.get("data")
 
-# DANGER : pickle.loads() peut exécuter du code arbitraire !
+# DANGER: pickle.loads() can execute arbitrary code!
 raw_pickle = base64.b64decode(user_data)
 decoded_data = pickle.loads(raw_pickle)
 ```
 
-**Pourquoi c'est dangereux :**
-Pickle exécute du code lors de la désérialisation. Un attaquant peut créer un payload malveillant.
+**Why it's dangerous:**
+Pickle executes code during deserialization. An attacker can create a malicious payload.
 
-**Générer un payload d'exploitation :**
+**Generate an exploitation payload:**
 ```python
 import pickle
 import base64
 import os
 
-# Créer un payload qui exécute `whoami`
+# Create a payload that executes `whoami`
 class RCE:
     def __reduce__(self):
         return (os.system, ('whoami',))
@@ -146,7 +146,7 @@ class RCE:
 payload = pickle.dumps(RCE())
 encoded = base64.b64encode(payload).decode()
 print(encoded)
-# Envoyer à : ?data={encoded}
+# Send to: ?data={encoded}
 ```
 
 ### ✅ Solution
@@ -157,46 +157,46 @@ import base64
 user_data = request.args.get("data")
 
 try:
-    # JSON est sûr car il ne peut pas exécuter du code
+    # JSON is safe because it cannot execute code
     decoded_data = json.loads(user_data)
 except json.JSONDecodeError:
     return "Invalid JSON", 400
 ```
 
-**Comparaison :**
-| Format | Sûr ? | Utilisation |
+**Comparison :**
+| Format | Safe? | Usage |
 |--------|-------|-----------|
-| `json` | ✅ Oui | Données structurées |
-| `pickle` | ❌ Non | Ne jamais utiliser pour l'input utilisateur |
-| `msgpack` | ⚠️ Conditionnel | Avec validation stricte |
+| `json` | ✅ Yes | Structured data |
+| `pickle` | ❌ No | Never use for user input |
+| `msgpack` | ⚠️ Conditional | With strict validation |
 
 ---
 
-## 5. Mode Debug Activé en Production
+## 5. Debug Mode Enabled in Production
 
-### ❌ Code Vulnérable
+### ❌ Vulnerable Code
 ```python
 if __name__ == "__main__":
-    app.run(debug=True)  # Mode debug = Mode risqué !
+    app.run(debug=True)  # Debug mode = High risk!
 ```
 
-**Risques du debug mode :**
-- Stack traces détaillées = révélation de code
-- Accès au débogueur interactif (Werkzeug debugger)
-- Rechargement automatique des modules
-- Exposition de variables d'environnement
+**Risks of debug mode :**
+- Detailed stack traces = Code exposure
+- Access to interactive debugger (Werkzeug debugger)
+- Automatic module reloading
+- Exposure of environment variables
 
 ### ✅ Solution
 ```python
 import os
 
 if __name__ == "__main__":
-    # Debug mode = False en production
+    # Debug mode = False in production
     debug_mode = os.getenv("FLASK_DEBUG", "False") == "True"
     app.run(debug=debug_mode)
 ```
 
-Ou avec configuration Flask :
+Or with Flask configuration :
 ```python
 from flask import Flask
 
@@ -204,36 +204,36 @@ app = Flask(__name__)
 app.config["DEBUG"] = os.getenv("FLASK_DEBUG", False)
 ```
 
-**Fichier `.env` pour dev :**
+**.env file for dev :**
 ```
 FLASK_DEBUG=True
 ```
 
-**En production :**
+**In production :**
 ```
 FLASK_DEBUG=False
 ```
 
 ---
 
-## 🛡️ Bonnes Pratiques Générales
+## 🛡️ General Security Best Practices
 
-### 1. **Validation des Entrées**
+### 1. **Input Validation**
 ```python
 from urllib.parse import quote_plus
 from flask import escape
 
 user_input = request.args.get("data", "")
 
-# Valider et nettoyer
+# Validate and clean
 if not user_input.isalnum():
     return "Invalid input", 400
 
-# Ou échapper pour l'HTML
+# Or escape for HTML
 safe_output = escape(user_input)
 ```
 
-### 2. **Utiliser un WAF (Web Application Firewall)**
+### 2. **Use a WAF (Web Application Firewall)**
 - ModSecurity
 - CloudFlare
 - AWS WAF
@@ -245,7 +245,7 @@ import logging
 logging.warning(f"Suspicious input detected: {user_input}")
 ```
 
-### 4. **Headers de Sécurité**
+### 4. **Security Headers**
 ```python
 @app.after_request
 def set_security_headers(response):
@@ -256,7 +256,7 @@ def set_security_headers(response):
     return response
 ```
 
-### 5. **Authentification & Autorisation**
+### 5. **Authentication & Authorization**
 ```python
 from flask_login import login_required, current_user
 
@@ -270,17 +270,17 @@ def get_data():
 
 ---
 
-## 🔗 Outils de Détection
+## 🔗 Detection Tools
 
-| Outil | Utilité |
+| Tool | Purpose |
 |-------|---------|
-| **Bandit** | Scan les failles Python |
-| **Semgrep** | SAST multi-langage |
-| **SonarQube** | Analyse statique complète |
-| **OWASP ZAP** | Test de sécurité web dynamique |
-| **Snyk** | Scan des dépendances vulnérables |
-| **Gitleaks** | Détecte les secrets dans Git |
+| **Bandit** | Scan Python security flaws |
+| **Semgrep** | Multi-language SAST |
+| **SonarQube** | Complete static analysis |
+| **OWASP ZAP** | Dynamic web security testing |
+| **Snyk** | Scan vulnerable dependencies |
+| **Gitleaks** | Detect secrets in Git |
 
 ---
 
-**Dernière mise à jour :** January 2026
+**Last updated :** January 2026

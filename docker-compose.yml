@@ -1,4 +1,4 @@
-# 🐳 Docker Setup pour Tester les Vulnérabilités
+# 🐳 Docker Setup for Testing Vulnerabilities
 
 version: '3.8'
 
@@ -9,18 +9,10 @@ services:
       - "5000:5000"
     environment:
       - FLASK_ENV=development
-      - FLASK_DEBUG=False  # Debug désactivé même en dev
+      - FLASK_DEBUG=False  # Debug disabled even in dev
     volumes:
       - .:/app
-    command: python main.py
-    networks:
-      - security-network
-
-  # Base de données SQLite (optionnel)
-  db:
-    image: sqlite
-    volumes:
-      - ./data:/data
+    command: python python/main.py
     networks:
       - security-network
 
@@ -30,4 +22,4 @@ networks:
 
 # Usage:
 # docker-compose up
-# L'application démarre sur http://localhost:5000
+# The application starts on http://localhost:5000

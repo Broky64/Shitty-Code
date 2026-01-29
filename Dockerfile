@@ -4,17 +4,17 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Copier les dépendances
-COPY requirements.txt .
+# Copy dependencies
+COPY python/requirements.txt .
 
-# Installer les dépendances
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copier le code
-COPY . .
+# Copy code
+COPY python/ .
 
-# Exposer le port
+# Expose port
 EXPOSE 5000
 
-# Lancer l'application
+# Run the application
 CMD ["python", "main.py"]

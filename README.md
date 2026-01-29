@@ -1,42 +1,42 @@
-# 🚨 Security Vulnerabilities Repository (Démonstration)
+# 🚨 Security Vulnerabilities Repository (Demo)
 
-## 📋 Objectif du Repository
+## 📋 Repository Objective
 
-Ce repository est une **collection intentionnelle de failles de sécurité**, de mauvaises pratiques et de vulnérabilités courantes dans les applications web. 
+This repository is an **intentional collection of security flaws**, bad practices, and common vulnerabilities in web applications. 
 
-**⚠️ ATTENTION :** Ce code est volontairement **VULNÉRABLE** et conçu à titre **éducatif uniquement** pour :
-- Apprendre à identifier les vulnérabilités de sécurité
-- Comprendre comment les hackers exploitent ces failles
-- Former des développeurs aux bonnes pratiques de sécurité
-- Tester des outils de scan de sécurité (SAST, DAST, etc.)
+**⚠️ WARNING :** This code is intentionally **VULNERABLE** and designed for **educational purposes only** to:
+- Learn how to identify security vulnerabilities
+- Understand how hackers exploit these flaws
+- Train developers in security best practices
+- Test security scanning tools (SAST, DAST, etc.)
 
-**❌ N'UTILISEZ PAS CE CODE EN PRODUCTION !**
+**❌ DO NOT USE THIS CODE IN PRODUCTION!**
 
 ---
 
-## 🔴 Vulnérabilités Documentées
+## 🔴 Documented Vulnerabilities
 
-### 1. **Clés Secrètes Hardcodées** (CWE-798)
+### 1. **Hardcoded Secret Keys** (CWE-798)
 ```python
 AWS_SECRET_KEY = "AKIAIMNO78987EXAMPLE"
 DATABASE_PASSWORD = "super_secret_password_123!"
 ```
-**Risque :** Les attaquants peuvent accéder aux services externes.
-**Bonne pratique :** Utiliser des variables d'environnement ou un gestionnaire de secrets.
+**Risk :** Attackers can access external services.
+**Best Practice :** Use environment variables or a secrets manager.
 
 ---
 
-### 2. **Injection de Commandes OS** (CWE-78)
+### 2. **OS Command Injection** (CWE-78)
 ```python
 os.system("echo " + user_data)
 ```
-**Risque :** Un attaquant peut exécuter des commandes arbitraires.
-**Payload d'exploitation :**
+**Risk :** An attacker can execute arbitrary commands.
+**Exploitation Payload :**
 ```
 ?data=; rm -rf /
 ?data=; cat /etc/passwd
 ```
-**Bonne pratique :** Utiliser `subprocess` avec `shell=False` ou éviter les commandes shell.
+**Best Practice :** Use `subprocess` with `shell=False` or avoid shell commands.
 
 ---
 
@@ -44,113 +44,118 @@ os.system("echo " + user_data)
 ```python
 cursor.execute(f"SELECT * FROM users WHERE id = '{user_data}'")
 ```
-**Risque :** Manipulation ou exfiltration de données de la base de données.
-**Payload d'exploitation :**
+**Risk :** Database manipulation or data exfiltration.
+**Exploitation Payload :**
 ```
 ?data=' OR '1'='1
 ?data=' UNION SELECT * FROM admin--
 ```
-**Bonne pratique :** Utiliser des requêtes paramétrées (prepared statements).
+**Best Practice :** Use parameterized queries (prepared statements).
 
 ---
 
-### 4. **Désérialisation Insecure** (CWE-502)
+### 4. **Insecure Deserialization** (CWE-502)
 ```python
 raw_pickle = base64.b64decode(user_data)
 decoded_data = pickle.loads(raw_pickle)
 ```
-**Risque :** Exécution de code arbitraire via pickle.
-**Bonne pratique :** Utiliser `json` au lieu de `pickle` ou valider strictement les données.
+**Risk :** Arbitrary code execution via pickle.
+**Best Practice :** Use `json` instead of `pickle` or strictly validate data.
 
 ---
 
-### 5. **Mode Debug Activé en Production** (CWE-215)
+### 5. **Debug Mode Enabled in Production** (CWE-215)
 ```python
 app.run(debug=True)
 ```
-**Risque :** Exposition de stack traces, d'informations sensibles, et accès au débogueur interactif.
-**Bonne pratique :** Désactiver le debug en production (`debug=False`).
+**Risk :** Exposure of stack traces, sensitive information, and access to interactive debugger.
+**Best Practice :** Disable debug in production (`debug=False`).
 
 ---
 
-## 📁 Structure du Repository
+## 📁 Repository Structure
 
 ```
 .
-├── README.md                      # Ce fichier
-├── VULNERABILITIES.md             # Documentation détaillée des failles
-├── main.py                        # Code vulnérable intentionnel
-├── SECURITY_FIXES.md              # Solutions et bonnes pratiques
-├── requirements.txt               # Dépendances
-├── tests/
-│   └── test_vulnerabilities.py   # Tests d'exploitation
-└── docker-compose.yml             # Setup pour tester localement
+├── README.md                      # This file
+├── SECURITY_FIXES.md              # Solutions and best practices
+├── CODE_OF_CONDUCT.md             # Responsible use policy
+├── QUICKSTART.md                  # Installation & quick start guide
+├── Dockerfile                     # Docker configuration
+├── docker-compose.yml             # Setup for local testing
+├── .env.example                   # Environment variables template
+├── .gitignore                     # Files to ignore
+├── python/
+│   ├── main.py                    # Intentionally vulnerable code
+│   └── requirements.txt           # Python dependencies
+└── tests/                         # Exploitation tests (future)
+    └── test_vulnerabilities.py   
 ```
 
 ---
 
-## 🎯 Cas d'Usage
+## 🎯 Use Cases
 
-### ✅ Utilisations Appropriées
+### ✅ Appropriate Uses
 
-1. **Formation en Cybersécurité**
-   - Comprendre les vulnérabilités OWASP Top 10
-   - Apprendre l'exploitation et les mitigations
+1. **Cybersecurity Training**
+   - Understand OWASP Top 10 vulnerabilities
+   - Learn exploitation and mitigations
 
-2. **Tests de Sécurité (Pentest)**
-   - Vérifier les outils de scan (SAST/DAST)
-   - Valider les règles de détection
+2. **Security Testing (Pentesting)**
+   - Verify security scanning tools (SAST/DAST)
+   - Validate detection rules
 
-3. **Développement de Sécurité**
-   - Benchmarker des règles de linting de sécurité
-   - Tester des frameworks de sécurité
+3. **Security Development**
+   - Benchmark security linting rules
+   - Test security frameworks
 
-### ❌ Utilisations Inappropriées
+### ❌ Inappropriate Uses
 
-- Déployer ce code en production
-- Utiliser pour attaquer d'autres systèmes
-- Ignorer les avertissements de sécurité
+- Deploy this code in production
+- Use for attacking other systems
+- Ignore security warnings
 
 ---
 
-## 🚀 Installation & Utilisation
+## 🚀 Installation & Usage
 
-### Prérequis
+### Prerequisites
 - Python 3.8+
-- pip ou poetry
+- pip or poetry
 
 ### Installation
 ```bash
 git clone https://github.com/username/security-vulnerabilities.git
 cd security-vulnerabilities
 
-pip install -r requirements.txt
+pip install -r python/requirements.txt
 ```
 
-### Lancer l'Application (en Local Uniquement)
+### Run the Application (Local Only)
 ```bash
-python main.py
+python python/main.py
 ```
 
-L'app démarre sur `http://localhost:5000`
+The app starts on `http://localhost:5000`
 
 ---
 
-## 🧪 Tester les Vulnérabilités
+## 🧪 Testing Vulnerabilities
 
-### Exemple : SQL Injection
+### Example: SQL Injection
 ```bash
 curl "http://localhost:5000/vulnerable-action?data=' OR '1'='1"
 ```
 
-### Exemple : Injection de Commande
+### Example: Command Injection
 ```bash
 curl "http://localhost:5000/vulnerable-action?data=;whoami"
 ```
 
 ---
 
-## 📚 Ressources Pédagogiques
+## 📚 Learning Resources
 
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [CWE - Common Weakness Enumeration](https://cwe.mitre.org/)
@@ -159,24 +164,24 @@ curl "http://localhost:5000/vulnerable-action?data=;whoami"
 
 ---
 
-## ⚖️ Licence
+## ⚖️ License
 
-Ce project est sous licence **MIT**. Cependant, **utilisez-le responsablement**.
+This project is under the **MIT License**. However, **use it responsibly**.
 
 ---
 
 ## ⚠️ Disclaimer
 
-**Les auteurs de ce repository ne sont pas responsables des dégâts causés par une utilisation malveillante ou irresponsable de ce code.**
+**The authors of this repository are not responsible for damages caused by malicious or irresponsible use of this code.**
 
-Cet outil est réservé à l'éducation et aux tests de sécurité autorisés dans un environnement contrôlé.
-
----
-
-## 📝 Contribution
-
-Les contributions pour ajouter de nouvelles vulnérabilités documentées sont les bienvenues ! 🎓
+This tool is reserved for education and authorized security testing in a controlled environment.
 
 ---
 
-**Dernière mise à jour :** January 2026
+## 📝 Contributing
+
+Contributions to add new documented vulnerabilities are welcome! 🎓
+
+---
+
+**Last updated :** January 2026
